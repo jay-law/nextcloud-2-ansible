@@ -1,0 +1,152 @@
+---
+
+- name: Installing packages for Nextcloud core (1 of 3)
+  apt:
+    update_cache: yes
+    pkg:
+    #- apache2 
+    #- mariadb-server 
+    - libapache2-mod-php7.4
+    - acl                                   # required for Ubuntu 20.04 when using Ansible
+  become: yes
+
+- name: Installing packages for Nextcloud core (2 of 3)
+  apt:
+    pkg:
+    - php7.4-gd 
+    - php7.4-mysql 
+    - php7.4-curl 
+    - php7.4-mbstring 
+    - php7.4-intl
+  become: yes
+
+- name: Installing packages for Nextcloud core (3 of 3)
+  apt:
+    pkg:
+    - php7.4-gmp 
+    - php7.4-bcmath 
+    - php-imagick 
+    - php7.4-xml 
+    - php7.4-zip
+  become: yes
+
+- name: Downloading compressed Nextcloud package
+  get_url:
+    url: https://download.nextcloud.com/server/releases/latest-22.tar.bz2
+    dest: /home/ubuntu
+
+- name: Uncompressing Nextcloud package
+  unarchive:
+    src: latest-22.tar.bz2
+    dest: /home/ubuntu
+    remote_src: yes
+
+- name: Moving nextcloud package to web server
+  copy:
+    remote_src: yes
+    src: /home/ubuntu/nextcloud
+    dest: /var/www
+  become: true
+
+- name: Copying nextcloud.conf to remote node
+  copy:
+    src: "{{ playbook_dir }}/remote_config_files/nextcloud_virtual_host.conf"
+    dest: /etc/apache2/sites-available/nextcloud.conf
+  become: true  
+
+# sudo /usr/sbin/a2ensite nextcloud.conf
+- name: Enabling nextcloud.conf
+  command: 
+    cmd: /usr/sbin/a2ensite nextcloud.conf
+  become: true
+
+- name: Creating /opt/nextcloud/data for data storage
+  file:
+    path: /opt/nextcloud/data
+    state: directory
+    owner: www-data
+    group: www-data
+  become: true
+
+# https://docs.nextcloud.com/server/stable/admin_manual/installation/command_line_installation.html
+# sudo chown -R www-data:www-data /var/www/nextcloud/
+- name: Changing ownership of nextcloud dir
+  file:
+    path: /var/www/nextcloud
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+  become: true
+
+# Here's the command that can be pasted into shell after decommenting with ctrl + /
+# sudo -u www-data php occ maintenance:install \
+# --database "mysql" \
+# --database-name "nextcloud" \
+# --database-user "sa_nextcloud" \
+# --database-pass "sa_nextcloud_password" \
+# --admin-user "admin" \
+# --admin-pass "password" \
+# --data-dir /opt/nextcloud/data
+- name: Installing Nextcloud
+  command: 
+    argv:
+      - /usr/bin/php 
+      - /var/www/nextcloud/occ
+      - maintenance:install
+      - --database
+      - "mysql"
+      - --database-name 
+      - "nextcloud"
+      - --database-user 
+      - "{{ database_user_name }}"
+      - --database-pass 
+      - "{{ database_user_password }}"
+      - --admin-user 
+      - "{{ nextcloud_admin_user }}"
+      - --admin-pass 
+      - "{{ nextcloud_admin_password }}"
+      - --data-dir
+      - "{{ nextcloud_data_dir }}"
+    chdir: /var/www/nextcloud
+  become: true
+  become_user: www-data
+
+# sudo -u www-data php occ config:system:set trusted_domains 1 --value=50.17.46.196
+- name: Modifying config:system - Adding domain name to trusted_domains
+  command:
+    argv:
+      - /usr/bin/php 
+      - /var/www/nextcloud/occ
+      - config:system:set
+      - trusted_domains
+      - 1
+      - --value={{ elastic_ip }}
+    chdir: /var/www/nextcloud
+  become: true
+  become_user: www-data
+
+# sudo -u www-data php occ config:system:set htaccess.RewriteBase --value=/
+- name: Modifying config:system - Enabling pretty URLs
+  command:
+    argv:
+      - /usr/bin/php 
+      - /var/www/nextcloud/occ
+      - config:system:set
+      - htaccess.RewriteBase
+      - --value=/
+    chdir: /var/www/nextcloud
+  become: true
+  become_user: www-data
+
+
+# sudo -u www-data php occ maintenance:update:htaccess
+# or
+# sudo service apache2 restart
+- name: Restarting Apache
+  systemd:
+    state: restarted
+    name: apache2
+  become: true
+
+

@@ -1,0 +1,36 @@
+
+- name: Installing packages for Apache
+  apt:
+    update_cache: yes
+    pkg:
+    - apache2
+
+- name: Enabling Apache module - rewrite
+  community.general.apache2_module:
+    state: present
+    name: rewrite
+
+- name: Enabling Apache module - headers
+  community.general.apache2_module:
+    state: present
+    name: headers
+
+- name: Enabling Apache module - env
+  community.general.apache2_module:
+    state: present
+    name: env
+
+- name: Enabling Apache module - dir
+  community.general.apache2_module:
+    state: present
+    name: dir
+
+- name: Enabling Apache module - mime
+  community.general.apache2_module:
+    state: present
+    name: mime
+
+- name: Restarting Apache
+  systemd:
+    state: restarted
+    name: apache2

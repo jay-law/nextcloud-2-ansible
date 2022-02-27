@@ -1,0 +1,26 @@
+---
+
+- name: Run 'apt update'
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+  tags: 
+    - database
+    - web
+    - nextcloud
+
+- include: configure_database.yml
+  tags: 
+    - database
+
+- include: configure_web.yml
+  become: true
+  tags: 
+    - web
+
+- include: configure_nextcloud.yml
+  tags: 
+    - nextcloud
+
+

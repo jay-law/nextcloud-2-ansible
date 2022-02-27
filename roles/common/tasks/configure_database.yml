@@ -1,0 +1,42 @@
+
+# ansible-galaxy collection install community.mysql
+
+- name: Installing packages for MySQL
+  apt:
+    update_cache: yes
+    pkg:
+    - mariadb-server
+    - python3-pymysql
+  become: true
+  tags: 
+    - database
+
+- name: Creating local service account 'sa_nextcloud'
+  community.mysql.mysql_user:
+    name: "{{ database_user_name }}"
+    password: "{{ database_user_password }}"
+    priv: '*.*:ALL,GRANT'
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  become: true
+  tags: 
+    - database
+
+- name: Updating root@localhost password
+  community.mysql.mysql_user:
+    name: root 
+    password: "{{ database_admin_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  become: true
+  tags: 
+    - database
+
+- name: Creating 'nextcloud' database
+  community.mysql.mysql_db:
+    name: nextcloud
+    state: present
+    login_user: "{{ database_user_name }}"
+    login_password: "{{ database_user_password }}"
+    encoding: utf8mb4                                   # This should also set the collation
+    login_unix_socket: /var/run/mysqld/mysqld.sock                                              
+  tags: 
+    - database

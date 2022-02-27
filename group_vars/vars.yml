@@ -1,0 +1,15 @@
+---
+elastic_ip: 3.229.189.54
+
+nextcloud_data_dir: /opt/nextcloud/data
+
+# Service account to access the database
+database_user_name: nextcloud_sa
+database_user_password: hdfskjdfaskljdhaslfkdhjasl
+
+database_admin_user: root   # This is a mysql default
+database_admin_password: asdfasdfasdfadsfadsfdasf
+
+nextcloud_admin_user: nextcloud_admin
+nextcloud_admin_password: lksglfkjdshlkdashfla
+

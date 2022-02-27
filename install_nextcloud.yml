@@ -1,0 +1,8 @@
+---
+- hosts: all
+  remote_user: ubuntu
+  gather_facts: true
+  vars_files: group_vars/vars.yml
+
+  roles:
+    - common

@@ -1,0 +1,14 @@
+# sudo -u www-data php occ maintenance:install
+# sudo -u www-data php occ app:install apporder
+- name: Modifying config:system - Adding domain name to trusted_domains
+  command:
+    argv:
+      - /usr/bin/php 
+      - /var/www/nextcloud/occ
+      - app:install
+      - apporder
+    chdir: /var/www/nextcloud
+  become: true
+  become_user: www-data
+  tags:
+    - apps_apporder
