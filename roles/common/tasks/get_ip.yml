@@ -1,0 +1,8 @@
+
+- name: Get IP address of EC2 instance
+  community.aws.ec2_eip_info:
+  delegate_to: localhost
+  register: ec2_instance_facts
+
+- debug: 
+    var: ec2_instance_facts
