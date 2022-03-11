@@ -10,20 +10,16 @@
     - web
     - nextcloud
 
-- include: get_ip.yml
-  tags:
-    - get_ip
-
-- include: configure_database.yml
+- import_tasks: configure_database.yml
   tags: 
     - database
 
-- include: configure_web.yml
+- import_tasks: configure_web.yml
   become: true
   tags: 
     - web
 
-- include: configure_nextcloud.yml
+- import_tasks: configure_nextcloud.yml
   tags: 
     - nextcloud
 
