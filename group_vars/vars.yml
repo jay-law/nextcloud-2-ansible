@@ -1,5 +1,5 @@
 ---
-elastic_ip: 44.194.224.88
+elastic_ip: 3.219.129.184
 
 nextcloud_data_dir: /opt/nextcloud/data
 
