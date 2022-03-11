@@ -1,6 +1,6 @@
 # sudo -u www-data php occ maintenance:install
 # sudo -u www-data php occ app:install apporder
-- name: Modifying config:system - Adding domain name to trusted_domains
+- name: Installing Nextcloud app - AppOrder
   command:
     argv:
       - /usr/bin/php 
