@@ -161,6 +161,7 @@ Tinker around with these scripts to build on your AWS, Terraform, and Ansible ex
 Be sure to destroy the instance once you are finished tinkering.  These scripts have very little security.
 
 ```bash
+# run from the nextcloud-2-terraform directory
 $ terraform destroy
 ```
 
@@ -187,4 +188,24 @@ $ ansible-playbook install_nextcloud.yml -i hosts --private-key nextcloud-2.pem 
 
 # Install the AppsOrder app within Nextcloud
 $ ansible-playbook install_nextcloud.yml -i hosts --private-key nextcloud-2.pem --tags "apps_apporder"
+```
+
+## ooc CLI
+
+The `occ` (ownCloud Console) is Nextcloud's CLI.  See the [official documentation](https://docs.nextcloud.com/server/stable/admin_manual/configuration_server/occ_command.html) for details.
+
+`occ` is used to perform many of the Nextcloud tasks in `roles/common/tasks/configure_nextcloud.yml`.  Task comments include the Linux "version" of the command.  When copying the comment and pasting into the terminal for manual execution, the `occ` path needs to be fully provided.  For example:
+
+```bash
+# Incorrect as the occ path is missing
+$ sudo -u www-data php occ help
+
+Could not open input file: occ
+
+# Correct as the occ path is provided
+$ sudo -u www-data php /var/www/nextcloud/occ help
+
+Description:
+  Display help for a command
+...
 ```
